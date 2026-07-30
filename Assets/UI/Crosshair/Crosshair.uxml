@@ -1,0 +1,12 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:Style src="project://database/Assets/UI/Crosshair/Crosshair.uss" />
+    <ui:VisualElement name="crosshair-screen" class="crosshair-screen" picking-mode="Ignore">
+        <ui:VisualElement name="crosshair" class="crosshair" picking-mode="Ignore">
+            <ui:VisualElement name="left-arm" class="arm horizontal left" />
+            <ui:VisualElement name="right-arm" class="arm horizontal right" />
+            <ui:VisualElement name="top-arm" class="arm vertical top" />
+            <ui:VisualElement name="bottom-arm" class="arm vertical bottom" />
+            <ui:VisualElement name="center-dot" class="center-dot" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
