@@ -8,6 +8,10 @@ public sealed class GunnerInput : MonoBehaviour
     public bool IsRunHeld { get; private set; }
     public bool AttackPressedThisFrame { get; private set; }
     public bool IsAttackHeld { get; private set; }
+    public bool AimPressedThisFrame { get; private set; }
+    public bool AimReleasedThisFrame { get; private set; }
+    public bool IsAimHeld { get; private set; }
+    public Vector2 AimLookDelta { get; private set; }
 
     private void Update()
     {
@@ -22,6 +26,15 @@ public sealed class GunnerInput : MonoBehaviour
 
         AttackPressedThisFrame = Input.GetMouseButtonDown(0);
         IsAttackHeld = Input.GetMouseButton(0);
+
+        AimPressedThisFrame = Input.GetMouseButtonDown(1);
+        AimReleasedThisFrame = Input.GetMouseButtonUp(1);
+        IsAimHeld = Input.GetMouseButton(1);
+        AimLookDelta = IsAimHeld
+            ? new Vector2(
+                Input.GetAxisRaw("Mouse X"),
+                Input.GetAxisRaw("Mouse Y"))
+            : Vector2.zero;
     }
 
     private void OnDisable()
@@ -30,5 +43,9 @@ public sealed class GunnerInput : MonoBehaviour
         IsRunHeld = false;
         AttackPressedThisFrame = false;
         IsAttackHeld = false;
+        AimPressedThisFrame = false;
+        AimReleasedThisFrame = false;
+        IsAimHeld = false;
+        AimLookDelta = Vector2.zero;
     }
 }

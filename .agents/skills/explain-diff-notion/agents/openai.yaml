@@ -1,0 +1,7 @@
+interface:
+  display_name: "Explain Diff to Notion"
+  short_description: "코드 변경을 한국어 Notion 해설 페이지로 정리합니다"
+  default_prompt: "Use $explain-diff-notion to explain the current code change in Korean as a new Notion page."
+
+policy:
+  allow_implicit_invocation: false

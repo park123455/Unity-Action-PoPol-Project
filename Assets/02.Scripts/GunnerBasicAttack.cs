@@ -9,18 +9,12 @@ using UnityEngine.Events;
 public sealed class GunnerBasicAttack : MonoBehaviour
 {
     private const string AttackStateTag = "Attack";
-    private static readonly int IsFiringHash = Animator.StringToHash("IsFiring");
-    private static readonly int AttackLoopSpeedHash = Animator.StringToHash("AttackLoopSpeed");
-
     [Header("Attack Speed")]
     [Tooltip("Attack speed multiplier. 8 means eight times the original attack rate.")]
     [SerializeField, Min(0.1f)] private float attackSpeedMultiplier = 8f;
 
     [Tooltip("Original attack06 duration (43 frames at 30 fps). Keep this as the base interval.")]
     [SerializeField, Min(0.01f)] private float baseAttackInterval = 1.4333334f;
-
-    [Tooltip("Duration of the sliced aiming/recoil loop (frames 9-27 at 30 fps).")]
-    [SerializeField, Min(0.01f)] private float attackLoopClipDuration = 0.6f;
 
     [Header("Firing Feel")]
     [Tooltip("Keeps the weapon raised briefly between rapid mouse clicks.")]
@@ -62,6 +56,8 @@ public sealed class GunnerBasicAttack : MonoBehaviour
     }
 
     public event Action AttackPerformed;
+    public event Action<bool> FiringStateChanged;
+    public event Action<float> AttackIntervalChanged;
 
     private Animator animator;
     private GunnerInput gunnerInput;
@@ -73,7 +69,6 @@ public sealed class GunnerBasicAttack : MonoBehaviour
     {
         animator = GetComponent<Animator>();
         gunnerInput = GetComponent<GunnerInput>();
-        ApplyAttackSpeed();
     }
 
     private void Update()
@@ -121,16 +116,11 @@ public sealed class GunnerBasicAttack : MonoBehaviour
     public void SetAttackSpeedMultiplier(float multiplier)
     {
         attackSpeedMultiplier = Mathf.Max(0.1f, multiplier);
-
-        if (animator != null)
-        {
-            ApplyAttackSpeed();
-        }
+        AttackIntervalChanged?.Invoke(AttackInterval);
     }
 
     private void PerformShot()
     {
-        ApplyAttackSpeed();
         nextAttackTime = Time.time + AttackInterval;
 
         attackPerformed.Invoke();
@@ -140,30 +130,22 @@ public sealed class GunnerBasicAttack : MonoBehaviour
     private void SetFiringState(bool firing)
     {
         isFiring = firing;
-        animator.SetBool(IsFiringHash, firing);
+        FiringStateChanged?.Invoke(firing);
 
         if (firing)
         {
-            ApplyAttackSpeed();
             nextAttackTime = Time.time + initialShotDelay;
         }
-    }
-
-    private void ApplyAttackSpeed()
-    {
-        float loopSpeed = attackLoopClipDuration / AttackInterval;
-        animator.SetFloat(AttackLoopSpeedHash, loopSpeed);
     }
 
     private void OnDisable()
     {
         nextAttackTime = 0f;
         firingInputExpiresAt = float.NegativeInfinity;
-        isFiring = false;
-
-        if (animator != null)
+        if (isFiring)
         {
-            animator.SetBool(IsFiringHash, false);
+            isFiring = false;
+            FiringStateChanged?.Invoke(false);
         }
     }
 
@@ -171,7 +153,6 @@ public sealed class GunnerBasicAttack : MonoBehaviour
     {
         attackSpeedMultiplier = Mathf.Max(0.1f, attackSpeedMultiplier);
         baseAttackInterval = Mathf.Max(0.01f, baseAttackInterval);
-        attackLoopClipDuration = Mathf.Max(0.01f, attackLoopClipDuration);
         firingInputGraceDuration = Mathf.Max(0f, firingInputGraceDuration);
         initialShotDelay = Mathf.Max(0f, initialShotDelay);
     }
